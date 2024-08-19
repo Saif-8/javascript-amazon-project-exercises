@@ -25,7 +25,7 @@ products.forEach((product) => {
       </div>
 
       <div class="product-quantity-container">
-        <select>
+        <select class="product-quantity-select">
           <option selected value="1">1</option>
           <option value="2">2</option>
           <option value="3">3</option>
@@ -50,20 +50,21 @@ products.forEach((product) => {
         Add to Cart
       </button>
     </div>`
-})
+});
+
 document.querySelector('.js-product-grid').innerHTML = productHTML;
 
 // Function to handle adding items to the cart
-function addToCart(id) {
+function addToCart(id, quantity) {
   // Check if the item already exists in the cart
   const itemIndex = cart.findIndex(item => item.id === id);
 
   if (itemIndex === -1) {
-      // Item not in the cart, add it with quantity 1
-      cart.push({ id: id, quantity: 1 });
+      // Item not in the cart, add it with the selected quantity
+      cart.push({ id: id, quantity: quantity });
   } else {
       // Item is already in the cart, increase the quantity
-      cart[itemIndex].quantity += 1;
+      cart[itemIndex].quantity += quantity;
   }
 
   // Update the cart quantity displayed on the page
@@ -83,8 +84,10 @@ updateCartQuantity();
 
 // Add event listeners to all 'Add to Cart' buttons
 document.querySelectorAll('.add-to-cart-button').forEach(button => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', (event) => {
       const id = parseInt(button.getAttribute('data-id'), 10);
-      addToCart(id);
+      const quantitySelect = button.closest('.product-container').querySelector('.product-quantity-select');
+      const quantity = parseInt(quantitySelect.value, 10);
+      addToCart(id, quantity);
   });
 });
