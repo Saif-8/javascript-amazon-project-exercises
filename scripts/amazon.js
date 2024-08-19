@@ -89,5 +89,16 @@ document.querySelectorAll('.add-to-cart-button').forEach(button => {
       const quantitySelect = button.closest('.product-container').querySelector('.product-quantity-select');
       const quantity = parseInt(quantitySelect.value, 10);
       addToCart(id, quantity);
+
+      // Show the "Added to cart" message
+      const addedToCartMessage = button.closest('.product-container').querySelector('.js-add-to-cart');
+      clearTimeout(addedToCartMessage.timeoutID); // Clear any previous timeout
+
+      addedToCartMessage.style.opacity = '1';
+
+      // Hide the "Added to cart" message after 2 seconds
+      addedToCartMessage.timeoutID = setTimeout(() => {
+          addedToCartMessage.style.opacity = '0';
+      }, 2000);
   });
 });

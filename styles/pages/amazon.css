@@ -78,6 +78,8 @@
   flex-direction: column;
 }
 
+
+
 .product-image-container {
   display: flex;
   justify-content: center;
@@ -154,3 +156,4 @@
   padding: 8px;
   border-radius: 50px;
 }
+
