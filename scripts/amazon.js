@@ -1,4 +1,4 @@
-import { cart } from "../data/cart.js";
+import { cart, addToCart } from "../data/cart.js";
 import { products } from "../data/products.js";
 
 let productHTML = '';
@@ -57,27 +57,8 @@ products.forEach((product) => {
 
 document.querySelector('.js-product-grid').innerHTML = productHTML;
 
-// Function to handle adding items to the cart
-function addToCart(id, quantity) {
-  // Check if the item already exists in the cart
-  const itemIndex = cart.findIndex(item => item.id === id);
-
-  if (itemIndex === -1) {
-      // Item not in the cart, add it with the selected quantity
-      cart.push({ id: id, quantity: quantity });
-  } else {
-      // Item is already in the cart, increase the quantity
-      cart[itemIndex].quantity += quantity;
-  }
-
-  // Update the cart quantity displayed on the page
-  updateCartQuantity();
-
-  console.log(cart); // For debugging, to see the cart contents in the console
-}
-
 // Function to update the cart quantity displayed on the page
-function updateCartQuantity() {
+export function updateCartQuantity() {
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   document.querySelector('.js-cart-quantity').textContent = totalQuantity;
 }
