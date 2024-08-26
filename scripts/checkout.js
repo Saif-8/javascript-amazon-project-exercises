@@ -93,6 +93,18 @@ const renderCartItems = () => {
       removeCartItem(itemId);
     });
   });
+
+  // Update the header with total quantity
+  updateHeaderWithTotalQuantity();
+};
+
+// Function to update the header with total quantity
+const updateHeaderWithTotalQuantity = () => {
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Select the header element using js-header class and update its content
+  const headerElement = document.querySelector('.js-header');
+  headerElement.innerHTML = `Checkout (<a class="return-to-home-link" href="amazon.html">${totalQuantity} items</a>)`;
 };
 
 // Function to remove item from cart
@@ -101,7 +113,7 @@ const removeCartItem = (id) => {
 
   if (itemIndex !== -1) {
     cart.splice(itemIndex, 1); // Remove item from array
-    renderCartItems(); // Re-render the cart items
+    renderCartItems(); // Re-render the cart items and update the header
   }
   savetoStorage();
 };
