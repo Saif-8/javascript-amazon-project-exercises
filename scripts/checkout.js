@@ -30,10 +30,15 @@ const renderCartItems = () => {
             </div>
             <div class="product-quantity">
               <span>
-                Quantity: <span class="quantity-label">${cartItem.quantity}</span>
+                Quantity: 
+                <span class="quantity-label">${cartItem.quantity}</span>
+                <input type="number" class="quantity-input" value="${cartItem.quantity}" min="1" max="100" style="width: 30px; text-align: center; display: none;">
               </span>
-              <span class="update-quantity-link link-primary">
+              <span class="update-quantity-link link-primary" data-id="${cartItem.id}">
                 Update
+              </span>
+              <span class="save-quantity-link link-primary" data-id="${cartItem.id}" style="display: none;">
+                Save
               </span>
               <span class="delete-quantity-link link-primary" data-id="${cartItem.id}">
                 Delete
@@ -86,6 +91,22 @@ const renderCartItems = () => {
     document.querySelector('.js-order-summary').innerHTML += cartItemHTML;
   });
 
+  // Add event listeners to update buttons
+  document.querySelectorAll('.update-quantity-link').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const itemId = event.target.getAttribute('data-id');
+      showQuantityInput(itemId);
+    });
+  });
+
+  // Add event listeners to save buttons
+  document.querySelectorAll('.save-quantity-link').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const itemId = event.target.getAttribute('data-id');
+      saveQuantity(itemId);
+    });
+  });
+
   // Add event listeners to delete buttons
   document.querySelectorAll('.delete-quantity-link').forEach(button => {
     button.addEventListener('click', (event) => {
@@ -94,8 +115,59 @@ const renderCartItems = () => {
     });
   });
 
+  // Add event listeners for keydown events on quantity input fields
+  document.querySelectorAll('.quantity-input').forEach(input => {
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        const itemId = input.parentNode.querySelector('.save-quantity-link').getAttribute('data-id');
+        saveQuantity(itemId);
+      }
+    });
+  });
+
   // Update the header with total quantity
   updateHeaderWithTotalQuantity();
+};
+
+// Function to show the quantity input and hide the quantity label and update button
+const showQuantityInput = (id) => {
+  const container = document.querySelector(`.update-quantity-link[data-id="${id}"]`).parentNode;
+  const input = container.querySelector('.quantity-input');
+  const label = container.querySelector('.quantity-label');
+  const updateButton = container.querySelector('.update-quantity-link');
+  const saveButton = container.querySelector('.save-quantity-link');
+
+  input.style.display = 'inline';
+  label.style.display = 'none';
+  updateButton.style.display = 'none';
+  saveButton.style.display = 'inline';
+  input.focus();
+};
+
+// Function to save the new quantity
+const saveQuantity = (id) => {
+  const container = document.querySelector(`.save-quantity-link[data-id="${id}"]`).parentNode;
+  const inputElement = container.querySelector('.quantity-input');
+  const label = container.querySelector('.quantity-label');
+
+  let newQuantity = parseInt(inputElement.value);
+
+  // Validate the input
+  if (isNaN(newQuantity) || newQuantity < 1 || newQuantity > 100) {
+    alert("Please enter a quantity between 1 and 100.");
+    inputElement.focus();
+    inputElement.select();
+    return;
+  }
+
+  const itemIndex = cart.findIndex(item => item.id === id);
+
+  if (itemIndex !== -1) {
+    // Update the cart with the new quantity
+    cart[itemIndex].quantity = newQuantity;
+    savetoStorage();
+    renderCartItems();
+  }
 };
 
 // Function to update the header with total quantity
