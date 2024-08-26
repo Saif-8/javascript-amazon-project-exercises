@@ -1,15 +1,18 @@
 import { updateCartQuantity } from "../scripts/amazon.js";
 
-export const cart = [{
-    id: 'e43638ce-6aa0-4b85-b27f-e1d07eb678c6',
-    quantity: 2
-}, {
-    id: '15b6fc6f-327a-4ec4-896f-486349e85a3d',
-    quantity: 1
-}];
+// Initialize cart from localStorage or as an empty array
+export let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+// Function to save the cart to localStorage
+export function savetoStorage() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
 
 // Function to handle adding items to the cart
- export function addToCart(id, quantity) {
+export function addToCart(id, quantity) {
+  // Convert id to string to ensure consistency
+  id = id.toString();
+
   // Check if the item already exists in the cart
   const itemIndex = cart.findIndex(item => item.id === id);
 
@@ -23,6 +26,9 @@ export const cart = [{
 
   // Update the cart quantity displayed on the page
   updateCartQuantity();
+
+  // Save the updated cart to localStorage
+  savetoStorage();
 
   console.log(cart); // For debugging, to see the cart contents in the console
 }

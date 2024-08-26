@@ -56,7 +56,7 @@ if (productGrid) {
             <button class="add-to-cart-button button-primary" data-id="${product.id}">
                 Add to Cart
             </button>
-        </div>`
+        </div>`;
     });
 
     // Insert the generated product HTML into the grid
@@ -65,7 +65,7 @@ if (productGrid) {
     // Add event listeners to all 'Add to Cart' buttons
     document.querySelectorAll('.add-to-cart-button').forEach(button => {
         button.addEventListener('click', (event) => {
-            const id = parseInt(button.getAttribute('data-id'), 10);
+            const id = button.getAttribute('data-id');  // Treat id as a string
             const quantitySelect = button.closest('.product-container').querySelector('.product-quantity-select');
             const quantity = parseInt(quantitySelect.value, 10);
             addToCart(id, quantity);
@@ -92,8 +92,8 @@ export function updateCartQuantity() {
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   cartQuantityElement.textContent = totalQuantity;
 }
-if (cartQuantityElement) {
 
+if (cartQuantityElement) {
     // Initialize the cart quantity display when the page loads
     updateCartQuantity();
 }
