@@ -143,28 +143,40 @@ export const renderCartItems = () => {
 
 
 
-const generateDeliveryOptions = (matchingProduct, selectedOption) => {
-  return deliveryOptions.map(option => {
-    const deliveryDate = dayjs().add(option.deliveryDays, 'days').format('dddd, MMMM D');
-
-    return `
-      <div class="delivery-option">
-        <input type="radio" 
-          class="delivery-option-input" 
-          name="delivery-option-${matchingProduct.id}" 
-          value="${option.deliveryOptionId}" 
-          data-product-id="${matchingProduct.id}"
-          ${option.deliveryOptionId === selectedOption ? 'checked' : ''}
-        >
-        <div>
-          <div class="delivery-option-date">
-            ${deliveryDate}
-          </div>
-          <div class="delivery-option-price">
-            ${option.priceCents === 0 ? 'FREE Shipping' : `${formatCurrency(option.priceCents)} - Shipping`}
+  const generateDeliveryOptions = (matchingProduct, selectedOption) => {
+    return deliveryOptions.map(option => {
+      let deliveryDate = dayjs().add(option.deliveryDays, 'days');
+  
+      // Check if the delivery date falls on a weekend
+      if (deliveryDate.day() === 6) {
+        // If it's Saturday, add 2 days to move to Monday
+        deliveryDate = deliveryDate.add(2, 'days');
+      } else if (deliveryDate.day() === 0) {
+        // If it's Sunday, add 1 day to move to Monday
+        deliveryDate = deliveryDate.add(1, 'days');
+      }
+  
+      const formattedDeliveryDate = deliveryDate.format('dddd, MMMM D');
+  
+      return `
+        <div class="delivery-option">
+          <input type="radio" 
+            class="delivery-option-input" 
+            name="delivery-option-${matchingProduct.id}" 
+            value="${option.deliveryOptionId}" 
+            data-product-id="${matchingProduct.id}"
+            ${option.deliveryOptionId === selectedOption ? 'checked' : ''}
+          >
+          <div>
+            <div class="delivery-option-date">
+              ${formattedDeliveryDate}
+            </div>
+            <div class="delivery-option-price">
+              ${option.priceCents === 0 ? 'FREE Shipping' : `${formatCurrency(option.priceCents)} - Shipping`}
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  }).join('');
-};
+      `;
+    }).join('');
+  };
+  
