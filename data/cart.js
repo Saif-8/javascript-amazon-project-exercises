@@ -1,5 +1,6 @@
 import { updateCartQuantity } from "../scripts/amazon.js";
 import { deliveryOptions } from "./deliveryOptions.js";
+import { renderPaymentSummary } from "../scripts/checkout/paymentSummary.js";
 
 // Initialize cart from localStorage or as an empty array
 export let cart = JSON.parse(localStorage.getItem('cart')) || [];

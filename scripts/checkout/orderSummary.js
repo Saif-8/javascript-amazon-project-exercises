@@ -3,26 +3,27 @@ import { products } from "../../data/products.js";
 import { formatCurrency } from "../util/money.js";
 import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
 import { deliveryOptions } from "../../data/deliveryOptions.js";
+import { renderPaymentSummary } from "./paymentSummary.js";
 
 export const renderCartItems = () => {
   document.querySelector('.js-order-summary').innerHTML = '';
 
-  let totalQuantity = 0; // Initialize total quantity
+  let totalQuantity = 0;
 
-  cart.forEach((cartItem) => {
+  cart.forEach((cartItem, index) => {
     const productId = cartItem.id;
     const matchingProduct = products.find(product => productId === product.id);
 
     if (!matchingProduct) return;
 
-    totalQuantity += cartItem.quantity; // Add the quantity of the current item to the total quantity
+    totalQuantity += cartItem.quantity;
 
     const selectedOption = cartItem.selectedDeliveryOption || deliveryOptions[0].deliveryOptionId;
     const deliveryOption = deliveryOptions.find(option => option.deliveryOptionId === selectedOption);
     const deliveryDate = dayjs().add(deliveryOption.deliveryDays, 'days').format('dddd, MMMM D');
 
     const cartItemHTML = `
-      <div class="cart-item-container">
+      <div class="cart-item-container" data-index="${index}">
         <div class="delivery-date">
           Delivery date: ${deliveryDate}
         </div>
@@ -68,22 +69,78 @@ export const renderCartItems = () => {
     document.querySelector('.js-order-summary').innerHTML += cartItemHTML;
   });
 
-  // Update the checkout header with the total quantity
   document.querySelector('.js-header').innerHTML = `Checkout (${totalQuantity} items)`;
 
-  // Add event listeners to delivery option radio buttons
   document.querySelectorAll('.delivery-option-input').forEach(input => {
     input.addEventListener('change', (event) => {
       const productId = event.target.getAttribute('data-product-id');
       const deliveryOptionId = event.target.value;
       updateDeliveryDate(productId, deliveryOptionId);
-      renderCartItems();  // Re-render cart items to update the delivery date and quantity
+      renderCartItems();
+      renderPaymentSummary();
     });
   });
 
+  document.querySelectorAll('.delete-quantity-link').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const index = event.target.closest('.cart-item-container').getAttribute('data-index');
+      cart.splice(index, 1);
+      savetoStorage(cart);
+      renderCartItems();
+      renderPaymentSummary();
+    });
+  });
+
+  // Add event listeners to handle the Update/Save button behavior
+  document.querySelectorAll('.update-quantity-link').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const container = event.target.closest('.cart-item-details');
+      const quantityLabel = container.querySelector('.quantity-label');
+      const quantityInput = container.querySelector('.quantity-input');
+      const updateButton = container.querySelector('.update-quantity-link');
+      const saveButton = container.querySelector('.save-quantity-link');
+
+      // Show the input box and the Save button, hide the Update button
+      quantityLabel.style.display = 'none';
+      quantityInput.style.display = 'inline-block';
+      updateButton.style.display = 'none';
+      saveButton.style.display = 'inline-block';
+    });
+  });
+
+  document.querySelectorAll('.save-quantity-link').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const container = event.target.closest('.cart-item-details');
+      const quantityLabel = container.querySelector('.quantity-label');
+      const quantityInput = container.querySelector('.quantity-input');
+      const updateButton = container.querySelector('.update-quantity-link');
+      const saveButton = container.querySelector('.save-quantity-link');
+      const index = event.target.closest('.cart-item-container').getAttribute('data-index');
+
+      // Update the cart item quantity with the value from the input
+      const newQuantity = parseInt(quantityInput.value);
+      cart[index].quantity = newQuantity;
+      savetoStorage(cart);
+
+      // Update the quantity display and toggle buttons
+      quantityLabel.textContent = newQuantity;
+      quantityLabel.style.display = 'inline';
+      quantityInput.style.display = 'none';
+      updateButton.style.display = 'inline-block';
+      saveButton.style.display = 'none';
+
+      renderCartItems(); // Re-render cart items
+      renderPaymentSummary(); // Re-render payment summary
+    });
+  });
+
+  renderPaymentSummary();
+};
+
+
   // Add event listeners to other elements (update quantity, save, delete)
   // These will be similar to the ones you already have implemented.
-};
+
 
 
 const generateDeliveryOptions = (matchingProduct, selectedOption) => {
@@ -111,4 +168,3 @@ const generateDeliveryOptions = (matchingProduct, selectedOption) => {
     `;
   }).join('');
 };
-
